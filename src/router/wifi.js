@@ -1,7 +1,13 @@
+import WiFi from '../pages/wifi'
 const routes = [
+  // {
+  //   path: '/',
+  //   redirect: '/wifi'
+  // },
   {
-    path: '/wifi',
-    component: () => import('../pages/wifi')
+    path: '/',
+    name: 'wifi',
+    component: WiFi
   }
 ]
 

@@ -11,7 +11,7 @@
           class="van-input"
           shape="round"
           input-align="center"
-          placeholder="请输入密码"
+          placeholder="请输入动态密码"
         />
       </div>
       <div class="btn" @click="sendCode">
@@ -25,7 +25,7 @@
       </div>
 
       <div class="tips">
-        关注公众号【小店大当家】，发送【wifi】 , 然后获得临时密码
+        关注公众号【小店大当家】，发送【wifi】 , 然后获得动态密码
       </div>
     </div>
     <div class="footer">
@@ -37,30 +37,45 @@
 </template>
 
 <script>
-import request from "@/utils/request";
+// import request from "@/utils/request";
+import search from 'vant/lib/search'
+// import 'vant/lib/search/index.css'
+import jwtDecode from 'jwt-decode'
+
 export default {
   name: "index",
+  components: {
+    'van-search': search,
+  },
   data() {
     return {
       secret: ''
     }
   },
+  mounted() {
+    // console.log(jwtDecode('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3aWZpX3N0YXJ0IjoxNjM0Mjg3ODcwNjAyLCJpYXQiOjE2MzQyODc4NzAsImV4cCI6MTYzNDI4ODE3MH0.R9DU1EkijrtIqsRFcfmhvjubdaB-Y19tTQk7IShSgLU'))
+  },
   methods: {
     async sendCode(){
       try {
         const code = this.secret
-        if(!code) throw new Error('密钥不能为空')
-        await request({
-          method: 'POST',
-          url: '/api/v1/util/verifyWifiCode',
-          data:{
-            code
-          }
-        })
+        if(!code) return this.$toast('密钥不能为空')
+        const {wifi_start} = jwtDecode(code)
+        if(Date.now() - wifi_start > 1000 * 60 * 3){
+          // console.log(new Date(wifi_start))
+          return this.$toast('密码已过期\n请重新获取')
+        }
+        // await request({
+        //   method: 'POST',
+        //   url: '/api/v1/util/verifyWifiCode',
+        //   data:{
+        //     code
+        //   }
+        // })
         this.$toast('连接成功')
         window.location.replace(window.authtarget)
       }catch (e){
-        this.$toast(e.message)
+        this.$toast('密码错误')
       }
     }
   }
